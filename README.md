@@ -10,6 +10,6 @@
 
 ![GitHub Logo](/images/powershell1.png)
 
-Зайдите на сайт chiaplot.ru/cabinet , теперь после нажатия скачать у плотов в GoogleDrive должно открываться окно, куда можно ввести путь до локальной папки
+Зайдите на сайт https://chiaplot.ru/cabinet , теперь после нажатия скачать у плотов в GoogleDrive должно открываться окно, куда можно ввести путь до локальной папки
 
 ![GitHub Logo](/images/done.png)
