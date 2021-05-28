@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Creating plots for Chia",
   "main": "index.js",
+  "bin": {
+    "mkvmergeaudio": "index.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

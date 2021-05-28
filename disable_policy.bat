@@ -1,0 +1,1 @@
+REG ADD HKLM\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers\ /v DefaultLevel /t REG_DWORD /d 0x00040000 /f
