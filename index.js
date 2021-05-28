@@ -11,6 +11,8 @@ _Downloader.setConfig(_Config);
 
 let allowedOrigins = ["http://chiaplot.ru","https://chiaplot.ru", "http://localhost", "http://chiaplot.loc"]
 
+_Logs.info('ChiaPlot.ru Started');
+
 app.all("/get", jsonParser, function (request, response) {
 
     let origin = request.headers.origin;
