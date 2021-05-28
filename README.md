@@ -3,7 +3,10 @@
 1. Скачать Nodejs: https://nodejs.org/dist/v14.17.0/node-v14.17.0-x86.msi
 
 3. Скачать репозиторий в любую папку и распаковать
-4. Перейдите в папку и с зажатой клавишей Shift нажмите правой кнопкой мыши на файл install.ps1 -> Выполинть с помощью PowerShell
+
+![GitHub Logo](/images/repo.png)
+
+5. Перейдите в папку и с зажатой клавишей Shift нажмите правой кнопкой мыши на файл install.ps1 -> Выполинть с помощью PowerShell
 
 ![GitHub Logo](/images/powershell.png)
 
