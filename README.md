@@ -2,6 +2,7 @@
 
 1. Скачать и установить Nodejs: https://nodejs.org/dist/v14.17.0/node-v14.17.0-x64.msi
 > Для Windows 7: https://nodejs.org/download/release/latest-v12.x/node-v12.22.1-x64.msi
+
 > Официальный сайт загрузки: https://nodejs.org/en/
 
 3. Скачать репозиторий в любую папку и распаковать
