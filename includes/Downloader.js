@@ -60,7 +60,7 @@ class Downloader {
         return new Promise((resolve, reject) => {
             try {
 
-                let command = (this._Config.env.debug ? '' : 'start ') + `rclone.exe -v copy gdrive:${plot_id} ${patch}  --drive-chunk-size 50M --progress --drive-token ${token} --config rclone.conf`;
+                let command = (this._Config.env.debug ? '' : 'start ') + `rclone.exe -v copy gdrive:${plot_id} ${patch}  --drive-chunk-size 64M --progress --drive-token ${token} --config rclone.conf`;
                 _Logs.info(command);
 
                 let coffeeProcess = exec(command, {encoding: "utf8"});
