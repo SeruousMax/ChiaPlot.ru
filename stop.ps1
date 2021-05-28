@@ -5,7 +5,7 @@ try
 {
 $cmd = 'cmd /c pm2 del pm2.config.js'
 invoke-expression $cmd
--Prompt "press enter to exit"
+Read-Host -Prompt "Stop Done! press enter to exit"
 }
 catch
 {

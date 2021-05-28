@@ -4,7 +4,7 @@ try
 {
 $cmd = 'cmd /c npm i npm -g | npm i pm2 -g | npm i'
 invoke-expression $cmd
--Prompt "press enter to exit"
+Read-Host -Prompt "Install Done! press enter to exit"
 }
 catch
 {

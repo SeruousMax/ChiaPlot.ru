@@ -5,7 +5,7 @@ try
 {
 $cmd = 'cmd /c pm2 restart pm2.config.js'
 invoke-expression $cmd
--Prompt "press enter to exit"
+Read-Host -Prompt "Restart Done! press enter to exit"
 }
 catch
 {
