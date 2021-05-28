@@ -1,6 +1,6 @@
 # ChiaPlot.ru
 
-1. Скачать Nodejs: https://nodejs.org/dist/v14.17.0/node-v14.17.0-x86.msi
+1. Скачать и установить Nodejs: https://nodejs.org/dist/v14.17.0/node-v14.17.0-x86.msi
 
 3. Скачать репозиторий в любую папку и распаковать
 
