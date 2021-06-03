@@ -8,7 +8,7 @@ let dateFormat = require("dateformat");
 let kill = require('tree-kill');
 
 class Downloader {
-    version = 3
+    version = 4
     plots = {}
     formatBytes(bytes, decimals) {
         if(bytes === 0) return '0 Bytes';
@@ -149,7 +149,6 @@ class Downloader {
                 });
 
                 this.plots[plot_id].process.stderr.on('end', (data) => {
-                    this.errorRClone(plot_id);
                     this.plots[plot_id].process.kill();
                     console.log('.startRClone stderr data', this.plots[plot_id].log);
                 });
