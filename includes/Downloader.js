@@ -1,21 +1,27 @@
 const { exec, spawn } = require("child_process");
+const path = require('path');
 let diskusage = require('diskusage-ng');
 let fs = require('fs');
 let _Logs = require('./Logs');
+let _ChiaApi = require('./ChiaApi');
+let dateFormat = require("dateformat");
+let kill = require('tree-kill');
 
 class Downloader {
+    version = 2
+    plots = {}
     formatBytes(bytes, decimals) {
         if(bytes === 0) return '0 Bytes';
-        var k = 1024,
+        let k = 1024,
             dm = decimals <= 0 ? 0 : decimals || 2,
             sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
             i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 
-    getSizePatch(patch) {
+    getSizeDir(dir) {
         return new Promise((resolve, reject) => {
-            diskusage(patch, (err, usage) => {
+            diskusage(dir, (err, usage) => {
                 try {
                     if (err) {
                         _Logs.error(err);
@@ -36,9 +42,9 @@ class Downloader {
         });
     }
 
-    checkPatch(patch) {
+    checkDir(dir) {
         return new Promise((resolve, reject) => {
-            fs.stat(patch, function (err) {
+            fs.stat(dir, function (err) {
                 if (!err) {
                     resolve();
                 } else {
@@ -48,39 +54,97 @@ class Downloader {
         });
     }
 
-    doneRClone() {
+    doneRClone(plot_id, dir, filename) {
+        try {
+            fs.rename(path.join(dir, plot_id.toString(), filename), path.join(dir, filename), (err) => {
+                if (err) {
+                    _Logs.error('.doneRClone rename', err);
+                } else {
+                    try {
+                        fs.rmdir(path.join(dir, plot_id.toString()), {recursive: true}, () => {
 
+                        });
+                    } catch (e) {
+                        _Logs.error('.doneRClone rmdir', e);
+                    }
+                }
+            });
+        } catch (e) {
+            _Logs.error('.doneRClone before rename', e);
+        }
+        this.plots[plot_id]['status'] = 'downloaded';
+        this.plots[plot_id]['date_done'] = dateFormat(new Date(), "dd.mm.yyyy HH:MM:ss");
+        _ChiaApi.setDownloaded(plot_id).then();
+        this.getNewDownload();
+    }
+
+    errorRClone(plot_id) {
+        _Logs.error('.errorRClone', plot_id);
+        this.plots[plot_id]['status'] = 'error';
+        _ChiaApi.unSetDownloading(plot_id).then();
+        //this.getNewDownload();
     }
 
     setConfig(_Config) {
         this._Config = _Config;
+        _ChiaApi.setConfig(_Config);
+        this.getNewDownload();
     }
 
-    startRClone(plot_id, patch, token) {
+    startRClone(plot_id, dir, token, filename) {
         return new Promise((resolve, reject) => {
             try {
-
-                let command = (this._Config.env.debug ? '' : 'start ') + `rclone.exe -v copy gdrive:${plot_id} ${patch}  --drive-chunk-size 64M --progress --drive-token ${token} --config rclone.conf`;
+                _ChiaApi.setDownloading(plot_id).then();
+                this.plots[plot_id] = {
+                    id: plot_id,
+                    dir: dir,
+                    filename: filename,
+                    status: 'downloading',
+                    date_start: dateFormat(new Date(), "dd.mm.yyyy HH:MM:ss"),
+                    date_done: null,
+                    log: ''
+                };
+                let command = `cmd | rclone copy gdrive:${plot_id} ${dir}/${plot_id} --use-json-log --drive-chunk-size 64M --drive-token ${token} --progress --config rclone.conf `;
                 _Logs.info(command);
 
-                let coffeeProcess = exec(command, {encoding: "utf8"});
+                this.plots[plot_id].process = exec(command, {windowsHide: true});
 
-                coffeeProcess.stdout.pipe(process.stdout);
-
-                coffeeProcess.on('error', (error) => {
+                this.plots[plot_id].process.on('error', (error) => {
+                    this.plots[plot_id].log += error.message;
+                    this.errorRClone(plot_id);
                     _Logs.error('.startRClone error', error);
                 });
-                coffeeProcess.on('uncaughtException', (error) => {
+                this.plots[plot_id].process.on('uncaughtException', (error) => {
+                    this.plots[plot_id].log += error.message;
+                    this.errorRClone(plot_id);
                     _Logs.error('.startRClone Exception', error);
                 });
-                coffeeProcess.stdout.on('end', (data) => {
+                this.plots[plot_id].process.stdout.on('end', (data) => {
+                    this.plots[plot_id].log += 'End' + data;
                     console.log('.startRClone end', data);
-                    this.doneRClone();
                 });
-                coffeeProcess.stderr.on('data', (data) => {
-                    _Logs.error('.startRClone stderr', JSON.stringify(data));
+                this.plots[plot_id].process.stdout.on('data', (data) => {
+                    this.plots[plot_id].log += data;
+                    let log = this.plots[plot_id].log.substr(-2000);
+                    if (
+                        (log.match(/Checks:(.*)1 \/ 1,/gi)) && (!log.match(/Transferred:(.*)0 \/ 1,/gi)) ||
+                        (log.match(/Transferred:(.*)1 \/ 1,/gi)) && (!log.match(/Checks:(.*)0 \/ 1,/gi)) ||
+                        (log.match(/Checks:(.*)1 \/ 1,/gi)) && (log.match(/Transferred:(.*)1 \/ 1,/gi))
+                    ) {
+                        this.doneRClone(plot_id, dir, filename);
+                    }
+                    console.log('.startRClone stdout data', data);
                 });
-                coffeeProcess.on('close', (code, signal) => {
+                this.plots[plot_id].process.stderr.on('data', (data) => {
+                    this.plots[plot_id].log += data;
+                    this.errorRClone(plot_id);
+                    if (this.plots[plot_id].process.pid)
+                        kill(this.plots[plot_id].process.pid, 'SIGKILL');
+                    console.log('.startRClone stderr data', data);
+                });
+                this.plots[plot_id].process.on('close', (code, signal) => {
+                    this.plots[plot_id].log += ' Closed';
+                    _ChiaApi.unSetDownloading(plot_id).then();
                     _Logs.info('.startRClone close');
                 });
 
@@ -91,17 +155,67 @@ class Downloader {
         });
     }
 
-    startDownload(plot_id, patch, token) {
+    checkForDownload(plot_id, dir, token, filename) {
         return new Promise((resolve, reject) => {
-            this.checkPatch(patch).then(() => {
-                return this.startRClone(plot_id, patch, JSON.stringify(token));
+            fs.stat(path.join(dir, filename), (err, stats) => {
+                if (err) {
+                    resolve();
+                } else {
+                    _ChiaApi.setDownloaded(plot_id);
+                    this.getNewDownload();
+                    reject('The plot already exists in directory');
+                }
+            });
+        });
+    }
+
+    startDownload(plot_id, dir, token, filename) {
+        return new Promise((resolve, reject) => {
+            if (this.plots[plot_id]) {
+                if (this.plots[plot_id].status === 'downloading') {
+                    reject('Downloading plot №' + plot_id + ' in progress');
+                    _ChiaApi.setDownloading(plot_id).then();
+                    this.getNewDownload();
+                    return;
+                }
+            }
+            this.checkDir(dir).then(() => {
+                return this.checkForDownload(plot_id, dir, token, filename);
+            }).then(() => {
+                return this.startRClone(plot_id, dir, JSON.stringify(token), filename);
             }).then(() => {
                 resolve();
             }).catch((err) => {
-                reject('Error:' + (err.code ? err.code : '') + ' ' + (err.message ? err.message : ''));
-            })
+                let error = '';
+                if (typeof err === "string")
+                    error = err;
+                else
+                    error = (err.code ? err.code : '') + ' ' + (err.message ? err.message : '');
+                reject('Error: ' + error);
+            });
         });
     }
+
+    getNewDownload() {
+        if (this._Config.env.auto) {
+            setTimeout(() => {
+                _ChiaApi.getFinished().then((data) => {
+                    if (this._Config.env.patch) {
+                        if (data['plot']) {
+                            this.startDownload(data['plot']['id'], this._Config.env.patch, data['plot']['token'], data['plot']['filename']).then();
+                        } else {
+                            this.getNewDownload();
+                        }
+                    }
+                }).catch((e) => {
+                    setTimeout(() => {
+                        this.getNewDownload();
+                    }, 3000);
+                });
+            }, 5000);
+        }
+    }
+
 }
 
 module.exports = new Downloader();

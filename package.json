@@ -21,8 +21,11 @@
   "homepage": "https://github.com/SeruousMax/ChiaPlot.ru#readme",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "dateformat": "^4.5.1",
     "diskusage-ng": "^1.0.1",
     "express": "^4.17.1",
-    "node-cmd": "^4.0.0"
+    "node-cmd": "^4.0.0",
+    "request": "^2.88.2",
+    "tree-kill": "^1.2.2"
   }
 }

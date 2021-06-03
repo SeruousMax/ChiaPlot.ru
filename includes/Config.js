@@ -2,9 +2,14 @@ let fs = require('fs');
 
 class Config {
     env_file = '.env'
+    //url_api = 'http://localhost/api/'
+    url_api = 'http://chiaplot.ru/api/'
     constructor() {
         this.env = {
-            patch: ''
+            patch: '',
+            auto: false,
+            user_id: null,
+            user_token: null
         };
         if (fs.existsSync(this.env_file)) {
             this.env = JSON.parse(fs.readFileSync(this.env_file, 'utf8'));
