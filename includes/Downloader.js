@@ -104,10 +104,21 @@ class Downloader {
                     date_done: null,
                     log: ''
                 };
-                let command = `cmd | rclone copy gdrive:${plot_id} ${dir}/${plot_id} --use-json-log --drive-chunk-size 64M --drive-token ${token} --progress --config rclone.conf `;
-                _Logs.info(command);
+                //let command = `cmd | rclone copy gdrive:${plot_id} ${dir}/${plot_id} --use-json-log --drive-chunk-size 64M --drive-token ${token} --progress --config rclone.conf `;
+                //_Logs.info(command);
 
-                this.plots[plot_id].process = exec(command, {windowsHide: true});
+                //this.plots[plot_id].process = exec(command, {windowsHide: true});
+                let params = [
+                    'copy',
+                    `gdrive:${plot_id}`, `${dir}/${plot_id}`,
+                    '--use-json-log',
+                    '--drive-chunk-size', '64M',
+                    '--drive-token', JSON.parse(token),
+                    '--progress', '--config', 'rclone.conf'
+                ];
+                this.plots[plot_id].process = spawn('rclone', params);
+                console.log(params);
+
 
                 this.plots[plot_id].process.on('error', (error) => {
                     this.plots[plot_id].log += error.message;
@@ -119,12 +130,10 @@ class Downloader {
                     this.errorRClone(plot_id);
                     _Logs.error('.startRClone Exception', error);
                 });
-                this.plots[plot_id].process.stdout.on('end', (data) => {
-                    this.plots[plot_id].log += 'End' + data;
-                    console.log('.startRClone end', data);
-                });
+
                 this.plots[plot_id].process.stdout.on('data', (data) => {
                     this.plots[plot_id].log += data;
+
                     let log = this.plots[plot_id].log.substr(-2000);
                     if (
                         (log.match(/Checks:(.*)1 \/ 1,/gi)) && (!log.match(/Transferred:(.*)0 \/ 1,/gi)) ||
@@ -133,15 +142,18 @@ class Downloader {
                     ) {
                         this.doneRClone(plot_id, dir, filename);
                     }
-                    console.log('.startRClone stdout data', data);
+                    console.log('.startRClone stdout data', data.toString());
                 });
-                this.plots[plot_id].process.stderr.on('data', (data) => {
+                this.plots[plot_id].process.stderr.on('end', (data) => {
                     this.plots[plot_id].log += data;
+                    //stderrChunks = '';
+
                     this.errorRClone(plot_id);
                     if (this.plots[plot_id].process.pid)
                         kill(this.plots[plot_id].process.pid, 'SIGKILL');
                     console.log('.startRClone stderr data', data);
                 });
+
                 this.plots[plot_id].process.on('close', (code, signal) => {
                     this.plots[plot_id].log += ' Closed';
                     _ChiaApi.unSetDownloading(plot_id).then();

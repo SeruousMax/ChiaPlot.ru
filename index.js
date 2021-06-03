@@ -68,7 +68,8 @@ app.all("/kill", jsonParser, function (request, response) {
     };
 
     if ((_Downloader.plots[request.body['plot_id']]) && (_Downloader.plots[request.body['plot_id']].process)) {
-        kill(_Downloader.plots[request.body['plot_id']].process.pid, 'SIGKILL');
+        //kill(_Downloader.plots[request.body['plot_id']].process.pid, 'SIGKILL');
+        _Downloader.plots[request.body['plot_id']].process.kill()
         _Downloader.plots[request.body['plot_id']]['status'] = 'cancel';
         res.killed = true;
     } else {
