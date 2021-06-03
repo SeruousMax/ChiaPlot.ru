@@ -113,7 +113,7 @@ class Downloader {
                     `gdrive:${plot_id}`, `${dir}/${plot_id}`,
                     '--use-json-log',
                     '--drive-chunk-size', '64M',
-                    '--drive-token', JSON.parse(token),
+                    '--drive-token', token,
                     '--progress', '--config', 'rclone.conf'
                 ];
                 this.plots[plot_id].process = spawn('rclone', params);
@@ -142,16 +142,16 @@ class Downloader {
                     ) {
                         this.doneRClone(plot_id, dir, filename);
                     }
-                    console.log('.startRClone stdout data', data.toString());
+                    console.log('.startRClone stdout data', this.plots[plot_id].log);
                 });
-                this.plots[plot_id].process.stderr.on('end', (data) => {
+                this.plots[plot_id].process.stderr.on('data', (data) => {
                     this.plots[plot_id].log += data;
-                    //stderrChunks = '';
+                });
 
+                this.plots[plot_id].process.stderr.on('end', (data) => {
                     this.errorRClone(plot_id);
-                    if (this.plots[plot_id].process.pid)
-                        kill(this.plots[plot_id].process.pid, 'SIGKILL');
-                    console.log('.startRClone stderr data', data);
+                    this.plots[plot_id].process.kill();
+                    console.log('.startRClone stderr data', this.plots[plot_id].log);
                 });
 
                 this.plots[plot_id].process.on('close', (code, signal) => {
