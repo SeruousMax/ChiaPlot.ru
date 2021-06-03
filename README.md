@@ -18,3 +18,7 @@ https://chiaplot.ru/program/2/ChiaPlot.ru.zip
 После нажатия скачать у плотов в GoogleDrive должно открываться окно, куда можно ввести путь до локальной папки
 
 ![GitHub Logo](/images/patch.png)
+
+На вкладке загрузчик вы можете активировать автоматическое скачивание и следить за статусом загрузки плотов:
+
+![GitHub Logo](/images/downloader.jpg)
