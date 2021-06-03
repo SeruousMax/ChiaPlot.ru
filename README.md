@@ -6,8 +6,7 @@
 > Официальный сайт загрузки: https://nodejs.org/en/
 
 2. Скачать репозиторий в любую папку и распаковать
-
-![GitHub Logo](/images/repo.png)
+https://chiaplot.ru/program/2/ChiaPlot.ru.zip
 
 3. Запустить index-win.exe
 
