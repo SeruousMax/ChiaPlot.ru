@@ -8,7 +8,7 @@ let dateFormat = require("dateformat");
 let kill = require('tree-kill');
 
 class Downloader {
-    version = 2
+    version = 3
     plots = {}
     formatBytes(bytes, decimals) {
         if(bytes === 0) return '0 Bytes';
