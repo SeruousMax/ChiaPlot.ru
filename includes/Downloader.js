@@ -113,7 +113,7 @@ class Downloader {
                     `gdrive:${plot_id}`, `${dir}/${plot_id}`,
                     '--use-json-log',
                     '--drive-chunk-size', '64M',
-                    '--drive-token', token,
+                    '--drive-token', JSON.parse(token),
                     '--progress', '--config', 'rclone.conf'
                 ];
                 this.plots[plot_id].process = spawn('rclone', params);
