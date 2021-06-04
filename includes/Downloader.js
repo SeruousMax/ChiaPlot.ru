@@ -1,15 +1,15 @@
-const { exec, spawn } = require("child_process");
+const { spawn } = require("child_process");
 const path = require('path');
 let diskusage = require('diskusage-ng');
 let fs = require('fs');
 let _Logs = require('./Logs');
 let _ChiaApi = require('./ChiaApi');
 let dateFormat = require("dateformat");
-let kill = require('tree-kill');
 
 class Downloader {
     version = 4
     plots = {}
+    /*
     formatBytes(bytes, decimals) {
         if(bytes === 0) return '0 Bytes';
         let k = 1024,
@@ -40,7 +40,7 @@ class Downloader {
                 }
             });
         });
-    }
+    }*/
 
     checkDir(dir) {
         return new Promise((resolve, reject) => {
@@ -74,15 +74,23 @@ class Downloader {
         }
         this.plots[plot_id]['status'] = 'downloaded';
         this.plots[plot_id]['date_done'] = dateFormat(new Date(), "dd.mm.yyyy HH:MM:ss");
+        _ChiaApi.sendAlert(plot_id, 'done').then().catch(() => {
+            _ChiaApi.sendAlert(plot_id, 'done').then();
+        });
         _ChiaApi.setDownloaded(plot_id).then();
         this.getNewDownload();
     }
 
-    errorRClone(plot_id) {
+    errorRClone(plot_id, message) {
         _Logs.error('.errorRClone', plot_id);
         this.plots[plot_id]['status'] = 'error';
         _ChiaApi.unSetDownloading(plot_id).then();
-        //this.getNewDownload();
+        _ChiaApi.sendAlert(plot_id, 'error', message).then().catch(() => {
+            _ChiaApi.sendAlert(plot_id, 'error', message).then();
+        });
+        setTimeout(() => {
+            this.getNewDownload();
+        }, 60000);
     }
 
     setConfig(_Config) {
@@ -114,7 +122,9 @@ class Downloader {
                     '--use-json-log',
                     '--drive-chunk-size', '64M',
                     '--drive-token', JSON.parse(token),
-                    '--progress', '--config', 'rclone.conf'
+                    '--progress', '--config', 'rclone.conf',
+                    '--retries', '100',
+                    '--retries-sleep', '10s'
                 ];
                 this.plots[plot_id].process = spawn('rclone', params);
                 console.log(params);
@@ -122,35 +132,41 @@ class Downloader {
 
                 this.plots[plot_id].process.on('error', (error) => {
                     this.plots[plot_id].log += error.message;
-                    this.errorRClone(plot_id);
+                    this.errorRClone(plot_id, error.message);
+                    this.plots[plot_id].log += error.message;
                     _Logs.error('.startRClone error', error);
                 });
                 this.plots[plot_id].process.on('uncaughtException', (error) => {
                     this.plots[plot_id].log += error.message;
-                    this.errorRClone(plot_id);
+                    this.errorRClone(plot_id, error.message);
+                    this.plots[plot_id].log += error.message;
                     _Logs.error('.startRClone Exception', error);
                 });
 
                 this.plots[plot_id].process.stdout.on('data', (data) => {
                     this.plots[plot_id].log += data;
 
-                    let log = this.plots[plot_id].log.substr(-2000);
+                    this.plots[plot_id].log = this.plots[plot_id].log.substr(-2000);
                     if (
-                        (log.match(/Checks:(.*)1 \/ 1,/gi)) && (!log.match(/Transferred:(.*)0 \/ 1,/gi)) ||
-                        (log.match(/Transferred:(.*)1 \/ 1,/gi)) && (!log.match(/Checks:(.*)0 \/ 1,/gi)) ||
-                        (log.match(/Checks:(.*)1 \/ 1,/gi)) && (log.match(/Transferred:(.*)1 \/ 1,/gi))
+                        (this.plots[plot_id].log.match(/Checks:(.*)1 \/ 1,/gi)) && (!this.plots[plot_id].log.match(/Transferred:(.*)0 \/ 1,/gi)) ||
+                        (this.plots[plot_id].log.match(/Transferred:(.*)1 \/ 1,/gi)) && (!this.plots[plot_id].log.match(/Checks:(.*)0 \/ 1,/gi)) ||
+                        (this.plots[plot_id].log.match(/Checks:(.*)1 \/ 1,/gi)) && (this.plots[plot_id].log.match(/Transferred:(.*)1 \/ 1,/gi))
                     ) {
                         this.doneRClone(plot_id, dir, filename);
                     }
-                    console.log('.startRClone stdout data', this.plots[plot_id].log);
+                    //console.log('.startRClone stdout data', this.plots[plot_id].log);
                 });
                 this.plots[plot_id].process.stderr.on('data', (data) => {
                     this.plots[plot_id].log += data;
+                    this.plots[plot_id].log = this.plots[plot_id].log.substr(-2000);
                 });
 
                 this.plots[plot_id].process.stderr.on('end', (data) => {
                     this.plots[plot_id].process.kill();
+                    _ChiaApi.unSetDownloading(plot_id).then();
                     console.log('.startRClone stderr data', this.plots[plot_id].log);
+                    if (!this.plots[plot_id].log.match(/Transferred:(.*)1 \/ 1,/gi))
+                        this.errorRClone(plot_id, this.plots[plot_id].log);
                 });
 
                 this.plots[plot_id].process.on('close', (code, signal) => {

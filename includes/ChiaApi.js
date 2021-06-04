@@ -170,6 +170,63 @@ class ChiaApi {
         });
     }
 
+    sendAlert(plot_id, type, message) {
+        return  new Promise((resolve, reject) => {
+            let data = {
+                user_token: this._Config.env.user_token,
+                user_id: this._Config.env.user_id,
+                plot_id: plot_id,
+                version: this._Config.env.version,
+                type: type,
+                message: message
+            };
+            try {
+                _Logs.info(`.sendAlert | ` + JSON.stringify(data));
+                let time = new Date().getTime() / 1000;
+
+                request.post(
+                    {
+                        url: this._Config.url_api + 'plot/sendAlert',
+                        json: data,
+                        timeout: 60000
+                    },
+                    (err, response, body) => {
+                        try {
+                            time = Math.round((new Date().getTime() / 1000 - time) * 100) / 100;
+                            if (err) {
+                                _Logs.error(`.sendAlert | Response | Time ${time}s ` + JSON.stringify(data), err);
+                                reject();
+                            } else {
+                                if ((response) && (response.statusCode === 200)) {
+                                    try {
+                                        if (!body.error) {
+                                            resolve(body);
+                                        } else {
+                                            _Logs.warning(`.sendAlert | Wrong status | Time ${time}s` + JSON.stringify(data), body);
+                                            reject();
+                                        }
+                                    } catch (err) {
+                                        _Logs.error(`.sendAlert | Parse | Time ${time}s` + JSON.stringify(data), body);
+                                        reject();
+                                    }
+                                } else {
+                                    _Logs.error(`.sendAlert | response.statusCode | Time ${time}s | ` + (response ? response.statusCode : 'response undefined') + ` ` + JSON.stringify(data), body);
+                                    reject();
+                                }
+                            }
+                        } catch (err) {
+                            _Logs.error(`.sendAlert | After connect ` + JSON.stringify(data), err);
+                            reject();
+                        }
+                    }
+                );
+            } catch (err) {
+                _Logs.error(`.sendAlert | Before connect ` + JSON.stringify(data), err);
+                reject();
+            }
+        });
+    }
+
     getFinished() {
         return  new Promise((resolve, reject) => {
             let data = {
