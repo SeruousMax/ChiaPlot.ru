@@ -7,7 +7,7 @@ let _ChiaApi = require('./ChiaApi');
 let dateFormat = require("dateformat");
 
 class Downloader {
-    version = 4
+    version = 4.1
     plots = {}
     /*
     formatBytes(bytes, decimals) {
