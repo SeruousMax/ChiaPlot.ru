@@ -1,4 +1,4 @@
-# ChiaPlot.ru
+# [ChiaPlot.ru](https://chiaplot.ru)
 ![](https://img.shields.io/badge/Version-4.1-blue)
 
 [English documentation](#English-documentation)
