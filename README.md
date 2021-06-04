@@ -17,7 +17,7 @@ Go to the site https://chiaplot.ru/cabinet, you should see a message: "The plot 
 
 After clicking download for plot in GoogleDrive, a window should open where you can enter the path to the local folder
 
-![GitHub Logo] (/images/patch.png)
+![GitHub Logo](/images/patch.png)
 
 On the downloader tab, you can activate automatic downloading and monitor the loading status of the plots:
 
