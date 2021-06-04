@@ -7,7 +7,7 @@
 
 2. Скачать в любую папку и распаковать
 
-https://chiaplot.ru/program/4/ChiaPlot.ru.zip
+https://chiaplot.ru/program/4_1/ChiaPlot.ru.zip
 
 3. Запустить index-win.exe
 
