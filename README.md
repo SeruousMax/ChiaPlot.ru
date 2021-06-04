@@ -1,4 +1,11 @@
 # ChiaPlot.ru
+![](https://img.shields.io/badge/Version-4.1-blue)
+
+[English documentation](#English-documentation)
+
+[Русская документация](#Русская-документация)
+
+## English documentation
 
 1. Download and install Nodejs: https://nodejs.org/dist/v14.17.0/node-v14.17.0-x64.msi
 > For Windows 7: https://nodejs.org/download/release/latest-v12.x/node-v12.22.1-x64.msi
@@ -24,6 +31,7 @@ On the downloader tab, you can activate automatic downloading and monitor the lo
 ![GitHub Logo](/images/downloader.jpg) 
 
 
+## Русская документация
 
 1. Скачать и установить Nodejs: https://nodejs.org/dist/v14.17.0/node-v14.17.0-x64.msi
 > Для Windows 7: https://nodejs.org/download/release/latest-v12.x/node-v12.22.1-x64.msi
