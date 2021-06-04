@@ -1,5 +1,5 @@
 # [ChiaPlot.ru](https://chiaplot.ru)
-![](https://img.shields.io/badge/Version-4.1-blue)
+![](https://img.shields.io/badge/Version-4.2-blue)
 
 [English documentation](#English-documentation)
 
@@ -14,7 +14,7 @@
 
 2. Download to any folder and unpack
 
-https://chiaplot.ru/program/4_1/ChiaPlot.ru.zip
+https://chiaplot.ru/program/4_2/ChiaPlot.ru.zip
 
 3. Run index-win.exe
 
@@ -40,7 +40,7 @@ On the downloader tab, you can activate automatic downloading and monitor the lo
 
 2. Скачать в любую папку и распаковать
 
-https://chiaplot.ru/program/4_1/ChiaPlot.ru.zip
+https://chiaplot.ru/program/4_2/ChiaPlot.ru.zip
 
 3. Запустить index-win.exe
 
