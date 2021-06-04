@@ -20,15 +20,15 @@ https://chiaplot.ru/program/4_1/ChiaPlot.ru.zip
 
 Go to the site https://chiaplot.ru/cabinet, you should see a message: "The plot loader has been successfully launched"
 
-![GitHub Logo](/images/done.png)
+![GitHub Logo](/images/downloader_enable_en.jpg)
 
 After clicking download for plot in GoogleDrive, a window should open where you can enter the path to the local folder
 
-![GitHub Logo](/images/patch.png)
+![GitHub Logo](/images/patch_en.jpg)
 
 On the downloader tab, you can activate automatic downloading and monitor the loading status of the plots:
 
-![GitHub Logo](/images/downloader.jpg) 
+![GitHub Logo](/images/downloader_en.jpg) 
 
 
 ## Русская документация
@@ -46,12 +46,12 @@ https://chiaplot.ru/program/4_1/ChiaPlot.ru.zip
 
 Зайдите на сайт https://chiaplot.ru/cabinet у вас должно появится сообщение: "Загрузчик плотов успешно запущен"
 
-![GitHub Logo](/images/done.png)
+![GitHub Logo](/images/downloader_enable_ru.jpg)
 
 После нажатия скачать у плотов в GoogleDrive должно открываться окно, куда можно ввести путь до локальной папки
 
-![GitHub Logo](/images/patch.png)
+![GitHub Logo](/images/patch_ru.jpg)
 
 На вкладке загрузчик вы можете активировать автоматическое скачивание и следить за статусом загрузки плотов:
 
-![GitHub Logo](/images/downloader.jpg)
+![GitHub Logo](/images/downloader_ru.jpg)
