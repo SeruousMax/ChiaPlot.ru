@@ -7,7 +7,7 @@
 
 ## English documentation
 
-#### 1 Download and install Nodejs
+#### 1. Download and install Nodejs
 
 > Official download site: https://nodejs.org/en/
 
@@ -28,11 +28,11 @@ MacOS and other OS:
 > Download RClone: https://rclone.org/downloads/ - You can install it globally or in the download directory with the program
 
 
-#### 2 Download to any folder and unpack
+#### 2. Download to any folder and unpack
 
 https://chiaplot.ru/program/4_3/ChiaPlot.ru.zip
 
-#### 3 Run index-win.exe
+#### 3. Run index-win.exe
 
 Go to the site https://chiaplot.ru/cabinet, you should see a message: "The plot loader has been successfully launched"
 
@@ -49,7 +49,7 @@ Go to the site https://chiaplot.ru/cabinet, you should see a message: "The plot 
 
 ## Русская документация
 
-#### 1 Скачать и установить Nodejs
+#### 1. Скачать и установить Nodejs
 
 > Официальный сайт: https://nodejs.org/en/
 
@@ -69,11 +69,11 @@ MacOS и другие операционные системы:
 > Скачать Nodejs: https://nodejs.org/en/
 > Скачать RClone: https://rclone.org/downloads/ - Вы можете установить глобально или в скачать дирректорию с программой
 
-#### 2 Скачать в любую папку и распаковать
+#### 2. Скачать в любую папку и распаковать
 
 https://chiaplot.ru/program/4_2/ChiaPlot.ru.zip
 
-#### 3 Запустить index-win.exe
+#### 3. Запустить index-win.exe
 
 Зайдите на сайт https://chiaplot.ru/cabinet у вас должно появится сообщение: "Загрузчик плотов успешно запущен"
 
