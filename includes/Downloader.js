@@ -7,7 +7,7 @@ let _ChiaApi = require('./ChiaApi');
 let dateFormat = require("dateformat");
 
 class Downloader {
-    version = 4.2
+    version = 4.3
     plots = {}
     /*
     formatBytes(bytes, decimals) {
@@ -151,6 +151,10 @@ class Downloader {
                     //console.log('.startRClone stdout data', this.plots[plot_id].log);
                 });
                 this.plots[plot_id].process.stdout.on('end', (data) => {
+                    console.log(data);
+                    this.plots[plot_id].log += data;
+
+                    this.plots[plot_id].log = this.plots[plot_id].log.substr(-2000);
                     if (
                         (this.plots[plot_id].log.match(/Checks:(.*)1 \/ 1,/gi)) && (!this.plots[plot_id].log.match(/Transferred:(.*)0 \/ 1,/gi)) ||
                         (this.plots[plot_id].log.match(/Transferred:(.*)1 \/ 1,/gi)) && (!this.plots[plot_id].log.match(/Checks:(.*)0 \/ 1,/gi)) ||
