@@ -7,6 +7,8 @@
 
 ## English documentation
 
+____
+
 #### 1. Download and install Nodejs
 
 
@@ -36,11 +38,13 @@ MacOS and other OS:
 
 > Download RClone: https://rclone.org/downloads/ - You can install it globally or in the download directory with the program
 
+____
 
 #### 2. Download to any folder and unpack
 
 https://chiaplot.ru/program/4_3/ChiaPlot.ru.zip
 
+____
 
 #### 3. Run index-win.exe
 
@@ -58,9 +62,13 @@ Go to the site https://chiaplot.ru/cabinet, you should see a message: "The plot 
 
 ![GitHub Logo](/images/downloader_en.jpg) 
 
+____
+____
 
 
 ## Русская документация
+
+____
 
 #### 1. Скачать и установить Nodejs
 
@@ -90,11 +98,13 @@ MacOS и другие операционные системы:
 
 > Скачать RClone: https://rclone.org/downloads/ - Вы можете установить глобально или в скачать дирректорию с программой
 
+____
 
 #### 2. Скачать в любую папку и распаковать
 
 https://chiaplot.ru/program/4_2/ChiaPlot.ru.zip
 
+____
 
 #### 3. Запустить index-win.exe
 
