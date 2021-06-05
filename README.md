@@ -19,8 +19,11 @@ For Windows 7:
 
 For Linux also need install rclone 
 > yum module reset nodejs -y
+
 > yum module enable nodejs:14 -y
+
 > yum install nodejs -y
+
 > curl https://rclone.org/install.sh | sudo bash
 
 MacOS and other OS:
