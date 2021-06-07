@@ -28,7 +28,7 @@ app.all("/get", jsonParser, function (request, response) {
     _Config.saveEnv();
 
     response.send(JSON.stringify({
-        version: _Downloader.version,
+        version: _Config.version,
         patch: _Config.env.patch,
         auto: _Config.env.auto,
     }));
@@ -50,7 +50,7 @@ app.all("/setAutoDownload", jsonParser, function (request, response) {
     _Downloader.getNewDownload();
 
     response.send(JSON.stringify({
-        version: _Downloader.version
+        version: _Config.version
     }));
 });
 
@@ -64,7 +64,7 @@ app.all("/kill", jsonParser, function (request, response) {
     response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
     let res = {
-        version: _Downloader.version,
+        version: _Config.version,
     };
 
     if ((_Downloader.plots[request.body['plot_id']]) && (_Downloader.plots[request.body['plot_id']].process)) {
@@ -111,7 +111,7 @@ app.all("/getList", jsonParser, function (request, response) {
     }
 
     response.send(JSON.stringify({
-        version: _Downloader.version,
+        version: _Config.version,
         items: items,
         limit: 100000
     }));
@@ -128,16 +128,16 @@ app.all("/download", jsonParser, function (request, response) {
 
     _Logs.info(JSON.stringify(request.body));
 
-    _Downloader.startDownload(request.body['plot_id'], request.body['patch'], request.body['token'], request.body['filename']).then(() => {
+    _Downloader.startDownload(request.body['plot_id'], request.body['patch'], request.body['token'], request.body['filename'], request.body['google_disk_id'], request.body['config']).then(() => {
         _Config.env.patch = request.body['patch'];
         _Config.saveEnv();
         response.send(JSON.stringify({
-            version: _Downloader.version,
+            version: _Config.version,
             message: 'started'
         }));
     }).catch((error) => {
         response.send(JSON.stringify({
-            version: _Downloader.version,
+            version: _Config.version,
             error: error
         }));
     });
