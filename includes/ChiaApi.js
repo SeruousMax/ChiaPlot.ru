@@ -11,7 +11,7 @@ class ChiaApi {
                 user_token: this._Config.env.user_token,
                 user_id: this._Config.env.user_id,
                 plot_id: plot_id,
-                version: this._Config.env.version,
+                version: this._Config.version,
             };
             try {
                 _Logs.info(`.setDownloaded | ` + JSON.stringify(data));
@@ -66,7 +66,7 @@ class ChiaApi {
                 user_token: this._Config.env.user_token,
                 user_id: this._Config.env.user_id,
                 plot_id: plot_id,
-                version: this._Config.env.version,
+                version: this._Config.version,
             };
             try {
                 _Logs.info(`.setDownloading | ` + JSON.stringify(data));
@@ -121,7 +121,7 @@ class ChiaApi {
                 user_token: this._Config.env.user_token,
                 user_id: this._Config.env.user_id,
                 plot_id: plot_id,
-                version: this._Config.env.version,
+                version: this._Config.version,
             };
             try {
                 _Logs.info(`.unSetDownloading | ` + JSON.stringify(data));
@@ -176,7 +176,7 @@ class ChiaApi {
                 user_token: this._Config.env.user_token,
                 user_id: this._Config.env.user_id,
                 plot_id: plot_id,
-                version: this._Config.env.version,
+                version: this._Config.version,
                 type: type,
                 message: message
             };
@@ -232,7 +232,7 @@ class ChiaApi {
             let data = {
                 user_token: this._Config.env.user_token,
                 user_id: this._Config.env.user_id,
-                version: this._Config.env.version,
+                version: this._Config.version,
             };
             try {
                 _Logs.info(`.getFinished | ` + JSON.stringify(data));

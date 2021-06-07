@@ -7,7 +7,6 @@ let _ChiaApi = require('./ChiaApi');
 let dateFormat = require("dateformat");
 
 class Downloader {
-    version = 4.3
     plots = {}
     /*
     formatBytes(bytes, decimals) {
@@ -99,7 +98,7 @@ class Downloader {
         this.getNewDownload();
     }
 
-    startRClone(plot_id, dir, token, filename) {
+    startRClone(plot_id, dir, token, filename, doogle_disk_id) {
         return new Promise((resolve, reject) => {
             try {
                 _ChiaApi.setDownloading(plot_id).then();
@@ -118,10 +117,10 @@ class Downloader {
                 //this.plots[plot_id].process = exec(command, {windowsHide: true});
                 let params = [
                     'copy',
-                    `gdrive:${plot_id}`, `${dir}/${plot_id}`,
+                    `drive${doogle_disk_id}:${plot_id}`, `${dir}/${plot_id}`,
                     '--use-json-log',
                     '--drive-chunk-size', '64M',
-                    '--drive-token', JSON.parse(token),
+                 //   '--drive-token', JSON.parse(token),
                     '--progress', '--config', 'rclone.conf',
                     '--retries', '100',
                     '--retries-sleep', '10s'
@@ -203,7 +202,18 @@ class Downloader {
         });
     }
 
-    startDownload(plot_id, dir, token, filename) {
+    writeConfig(config) {
+        return new Promise((resolve, reject) => {
+            try {
+                fs.writeFileSync("rclone.conf", config);
+                resolve();
+            } catch(e) {
+                reject(e);
+            }
+        });
+    }
+
+    startDownload(plot_id, dir, token, filename, doogle_disk_id, config) {
         return new Promise((resolve, reject) => {
             if (this.plots[plot_id]) {
                 if (this.plots[plot_id].status === 'downloading') {
@@ -214,9 +224,11 @@ class Downloader {
                 }
             }
             this.checkDir(dir).then(() => {
+                return this.writeConfig(config);
+            }).then(() => {
                 return this.checkForDownload(plot_id, dir, token, filename);
             }).then(() => {
-                return this.startRClone(plot_id, dir, JSON.stringify(token), filename);
+                return this.startRClone(plot_id, dir, JSON.stringify(token), filename, doogle_disk_id);
             }).then(() => {
                 resolve();
             }).catch((err) => {
@@ -236,7 +248,7 @@ class Downloader {
                 _ChiaApi.getFinished().then((data) => {
                     if (this._Config.env.patch) {
                         if (data['plot']) {
-                            this.startDownload(data['plot']['id'], this._Config.env.patch, data['plot']['token'], data['plot']['filename']).then();
+                            this.startDownload(data['plot']['id'], this._Config.env.patch, data['plot']['token'], data['plot']['filename'], data['plot']['google_disk_id'], data['plot']['config']).then();
                         } else {
                             this.getNewDownload();
                         }
