@@ -253,7 +253,6 @@ class ChiaApi {
                             } else {
                                 if ((response) && (response.statusCode === 200)) {
                                     try {
-                                        console.log(body);
                                         if (!body.error) {
                                             resolve(body);
                                         } else {

@@ -74,7 +74,7 @@ class Downloader {
         this.plots[plot_id]['status'] = 'downloaded';
         this.plots[plot_id]['date_done'] = dateFormat(new Date(), "dd.mm.yyyy HH:MM:ss");
         _ChiaApi.sendAlert(plot_id, 'done').then().catch(() => {
-            _ChiaApi.sendAlert(plot_id, 'done').then();
+            _ChiaApi.sendAlert(plot_id, 'done').then().catch(() => {});
         });
         _ChiaApi.setDownloaded(plot_id).then();
         this.getNewDownload();
@@ -85,7 +85,7 @@ class Downloader {
         this.plots[plot_id]['status'] = 'error';
         _ChiaApi.unSetDownloading(plot_id).then();
         _ChiaApi.sendAlert(plot_id, 'error', message).then().catch(() => {
-            _ChiaApi.sendAlert(plot_id, 'error', message).then();
+            _ChiaApi.sendAlert(plot_id, 'error', message).then().catch(() => {});
         });
         setTimeout(() => {
             this.getNewDownload();
@@ -123,7 +123,8 @@ class Downloader {
                  //   '--drive-token', JSON.parse(token),
                     '--progress', '--config', 'rclone.conf',
                     '--retries', '100',
-                    '--retries-sleep', '10s'
+                    '--retries-sleep', '10s',
+                    '--log-level', 'DEBUG',
                 ];
                 this.plots[plot_id].process = spawn('rclone', params);
                 console.log(params);

@@ -4,7 +4,7 @@ class Config {
     env_file = '.env'
     //url_api = 'http://localhost/api/'
     url_api = 'http://chiaplot.ru/api/'
-    version = 5
+    version = 5.1
     constructor() {
         this.env = {
             patch: '',
