@@ -1,5 +1,5 @@
 # [ChiaPlot.ru](https://chiaplot.ru)
-![](https://img.shields.io/badge/Version-4.3-blue)
+![](https://img.shields.io/badge/Version-5.1-blue)
 
 [English documentation](#English-documentation)
 
@@ -42,7 +42,7 @@ ____
 
 #### 2. Download to any folder and unpack
 
-https://chiaplot.ru/program/4_3/ChiaPlot.ru.zip
+https://chiaplot.ru/program/5_1/ChiaPlot.ru.zip
 
 ____
 
@@ -103,7 +103,7 @@ ____
 
 #### 2. Скачать в любую папку и распаковать
 
-https://chiaplot.ru/program/4_2/ChiaPlot.ru.zip
+https://chiaplot.ru/program/5_1/ChiaPlot.ru.zip
 
 ____
 
