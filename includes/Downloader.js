@@ -8,7 +8,6 @@ let dateFormat = require("dateformat");
 
 class Downloader {
     plots = {}
-    count_starting = 0
 
     formatBytes(bytes, decimals) {
         if(bytes === 0) return '0 Bytes';
@@ -242,7 +241,6 @@ class Downloader {
                 if (this.plots[plot_id].status === 'downloading') {
                     reject('Downloading plot №' + plot_id + ' in progress');
                     _ChiaApi.setDownloading(plot_id).then();
-                    this.count_starting--;
                     return;
                 }
             }
@@ -265,14 +263,12 @@ class Downloader {
             }).then(() => {
                 return this.checkForDownload(plot_id, dirs, token, filename);
             }).then(() => {
-                this.count_starting--;
                 this.startRClone(plot_id, selectedDir, JSON.stringify(token), filename, google_disk_id).then(() => {
                     resolve();
                 }).catch((err) => {
                     error(err);
                 });
             }).catch((err) => {
-                this.count_starting--;
                 error(err);
             });
         });
@@ -303,23 +299,19 @@ class Downloader {
                             count_run++;
                         }
                     }
-                    let count_need_run = this._Config.env.auto_count - count_run - this.count_starting;
+                    let count_need_run = this._Config.env.auto_count - count_run;
 
-                    console.log(count_need_run, this._Config.env.auto_count, count_run, this.count_starting);
+                    console.log(count_need_run, this._Config.env.auto_count, count_run);
 
                     if (count_need_run > 0) {
-                        this.count_starting++;
                         _ChiaApi.getFinished().then((data) => {
                             if (this._Config.env.dirs.length > 0) {
                                 if (data['plot']) {
                                     this.startDownload(data['plot']['id'], this._Config.env.dirs, data['plot']['token'], data['plot']['filename'], data['plot']['google_disk_id'], data['plot']['config']).then();
-                                } else {
-                                    this.count_starting--;
                                 }
                             }
                             resolve();
                         }).catch((e) => {
-                            this.count_starting--;
                             reject();
                         });
                     } else {

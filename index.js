@@ -107,7 +107,7 @@ app.all("/getList", jsonParser, function (request, response) {
         }
         items.push({
             id: item.id,
-            dir: item.dir,
+            dir: item.dir_name,
             filename: item.filename,
             status: item.status,
             date_start: item.date_start,
