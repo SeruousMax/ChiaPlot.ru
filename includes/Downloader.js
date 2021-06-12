@@ -8,7 +8,8 @@ let dateFormat = require("dateformat");
 
 class Downloader {
     plots = {}
-    /*
+    count_starting = 0
+
     formatBytes(bytes, decimals) {
         if(bytes === 0) return '0 Bytes';
         let k = 1024,
@@ -18,9 +19,18 @@ class Downloader {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 
-    getSizeDir(dir) {
+    getDownloadingCount(dir_name) {
+        let count = 0;
+        for (let plot_id in this.plots) {
+            let plot = this.plots[plot_id];
+            if (plot.dir_name === dir_name) count++;
+        }
+        return count;
+    }
+
+    async getSizeDir(dir_name) {
         return new Promise((resolve, reject) => {
-            diskusage(dir, (err, usage) => {
+            diskusage(dir_name, (err, usage) => {
                 try {
                     if (err) {
                         _Logs.error(err);
@@ -28,10 +38,10 @@ class Downloader {
                     } else {
                         let info = {
                             available: usage.available,
+                            available_after: usage.available - (108820103168 + 1088201031)  * (this.getDownloadingCount(dir_name) + 1), //101 Gb + 1%
                             total: usage.total,
                             used: usage.used
                         };
-                        _Logs.info(JSON.stringify(info));
                         resolve(info);
                     }
                 } catch (err) {
@@ -39,28 +49,40 @@ class Downloader {
                 }
             });
         });
-    }*/
+    }
 
-    checkDir(dir) {
-        return new Promise((resolve, reject) => {
-            fs.stat(dir, function (err) {
-                if (!err) {
-                    resolve();
-                } else {
-                    reject(err);
-                }
-            });
-        });
+    async checkDirs(dirs) {
+        for (let dir of dirs) {
+            if (fs.existsSync(dir.name)) {
+                //file exists
+            }
+        }
+        let result_dir = null;
+        for (let dir of dirs) {
+            let info = await this.getSizeDir(dir.name);
+            if (info.available_after > 0) {
+                result_dir = dir;
+            }
+            _Logs.info(JSON.stringify({
+                dir_name: dir.name,
+                total: this.formatBytes(info.total),
+                available: this.formatBytes(info.available),
+                available_after: this.formatBytes(info.available_after),
+                used: this.formatBytes(info.used)
+            }));
+        }
+        return result_dir;
     }
 
     doneRClone(plot_id, dir, filename) {
         try {
-            fs.rename(path.join(dir, plot_id.toString(), filename), path.join(dir, filename), (err) => {
+            fs.rename(path.join(dir.name, plot_id.toString(), filename), path.join(dir.name, filename), (err) => {
                 if (err) {
                     _Logs.error('.doneRClone rename', err);
+                    _ChiaApi.sendAlert(plot_id, 'error', err.message).then().catch(() => {});
                 } else {
                     try {
-                        fs.rmdir(path.join(dir, plot_id.toString()), {recursive: true}, () => {
+                        fs.rmdir(path.join(dir.name, plot_id.toString()), {recursive: true}, () => {
 
                         });
                     } catch (e) {
@@ -70,6 +92,7 @@ class Downloader {
             });
         } catch (e) {
             _Logs.error('.doneRClone before rename', e);
+            _ChiaApi.sendAlert(plot_id, 'error', e.message).then().catch(() => {});
         }
         this.plots[plot_id]['status'] = 'downloaded';
         this.plots[plot_id]['date_done'] = dateFormat(new Date(), "dd.mm.yyyy HH:MM:ss");
@@ -77,7 +100,6 @@ class Downloader {
             _ChiaApi.sendAlert(plot_id, 'done').then().catch(() => {});
         });
         _ChiaApi.setDownloaded(plot_id).then();
-        this.getNewDownload();
     }
 
     errorRClone(plot_id, message) {
@@ -87,40 +109,37 @@ class Downloader {
         _ChiaApi.sendAlert(plot_id, 'error', message).then().catch(() => {
             _ChiaApi.sendAlert(plot_id, 'error', message).then().catch(() => {});
         });
-        setTimeout(() => {
-            this.getNewDownload();
-        }, 60000);
     }
 
     setConfig(_Config) {
         this._Config = _Config;
         _ChiaApi.setConfig(_Config);
-        this.getNewDownload();
     }
 
-    startRClone(plot_id, dir, token, filename, doogle_disk_id) {
+    startRClone(plot_id, dir, token, filename, google_disk_id) {
         return new Promise((resolve, reject) => {
             try {
                 _ChiaApi.setDownloading(plot_id).then();
                 this.plots[plot_id] = {
                     id: plot_id,
-                    dir: dir,
+                    dir_name: dir.name,
                     filename: filename,
                     status: 'downloading',
                     date_start: dateFormat(new Date(), "dd.mm.yyyy HH:MM:ss"),
                     date_done: null,
                     log: ''
                 };
-                //let command = `cmd | rclone copy gdrive:${plot_id} ${dir}/${plot_id} --use-json-log --drive-chunk-size 64M --drive-token ${token} --progress --config rclone.conf `;
+                //let command = `cmd | rclone copy gdrive:${plot_id} ${dir.name}/${plot_id} --use-json-log --drive-chunk-size 64M --drive-token ${token} --progress --config rclone.conf `;
                 //_Logs.info(command);
 
                 //this.plots[plot_id].process = exec(command, {windowsHide: true});
                 let params = [
                     'copy',
-                    `drive${doogle_disk_id}:${plot_id}`, `${dir}/${plot_id}`,
+                    //'-vv',
+                    `drive${google_disk_id}:${plot_id}`, `${dir.name}/${plot_id}`,
                     '--use-json-log',
                     '--drive-chunk-size', '64M',
-                 //   '--drive-token', JSON.parse(token),
+                    //'--drive-token', JSON.parse(token),
                     '--progress', '--config', 'rclone.conf',
                     '--retries', '100',
                     '--retries-sleep', '10s',
@@ -189,17 +208,20 @@ class Downloader {
         });
     }
 
-    checkForDownload(plot_id, dir, token, filename) {
+    checkForDownload(plot_id, dirs, token, filename) {
         return new Promise((resolve, reject) => {
-            fs.stat(path.join(dir, filename), (err, stats) => {
-                if (err) {
-                    resolve();
-                } else {
-                    _ChiaApi.setDownloaded(plot_id);
-                    this.getNewDownload();
-                    reject('The plot already exists in directory');
+            let exist = null;
+            for (let dir of dirs) {
+                if (fs.existsSync(path.join(dir.name, filename))) {
+                    exist = dir.name;
+                    _ChiaApi.setDownloaded(plot_id).then().catch();
                 }
-            });
+            }
+            if (exist) {
+                reject('The plot already exists in directory ' + exist);
+            } else {
+                resolve();
+            }
         });
     }
 
@@ -214,53 +236,103 @@ class Downloader {
         });
     }
 
-    startDownload(plot_id, dir, token, filename, doogle_disk_id, config) {
+    startDownload(plot_id, dirs, token, filename, google_disk_id, config) {
         return new Promise((resolve, reject) => {
             if (this.plots[plot_id]) {
                 if (this.plots[plot_id].status === 'downloading') {
                     reject('Downloading plot №' + plot_id + ' in progress');
                     _ChiaApi.setDownloading(plot_id).then();
-                    this.getNewDownload();
+                    this.count_starting--;
                     return;
                 }
             }
-            this.checkDir(dir).then(() => {
-                return this.writeConfig(config);
-            }).then(() => {
-                return this.checkForDownload(plot_id, dir, token, filename);
-            }).then(() => {
-                return this.startRClone(plot_id, dir, JSON.stringify(token), filename, doogle_disk_id);
-            }).then(() => {
-                resolve();
-            }).catch((err) => {
+            let error = (err) => {
                 let error = '';
                 if (typeof err === "string")
                     error = err;
                 else
                     error = (err.code ? err.code : '') + ' ' + (err.message ? err.message : '');
                 reject('Error: ' + error);
+            }
+            let selectedDir = '';
+            this.checkDirs(dirs).then((dir) => {
+                if (dir) {
+                    selectedDir = dir;
+                    return this.writeConfig(config);
+                } else {
+                    return new Promise((resolve, reject) => {reject('Disk space is low in directories')});
+                }
+            }).then(() => {
+                return this.checkForDownload(plot_id, dirs, token, filename);
+            }).then(() => {
+                this.count_starting--;
+                this.startRClone(plot_id, selectedDir, JSON.stringify(token), filename, google_disk_id).then(() => {
+                    resolve();
+                }).catch((err) => {
+                    error(err);
+                });
+            }).catch((err) => {
+                this.count_starting--;
+                error(err);
             });
         });
     }
 
+    constructor() {
+        this.startGettingNew();
+    }
+
+    startGettingNew() {
+        setTimeout(() => {
+            this.getNewDownload().then(() => {
+                this.startGettingNew();
+            }).catch(() => {
+                this.startGettingNew();
+            });
+        }, 10000);
+    }
+
     getNewDownload() {
-        if (this._Config.env.auto) {
-            setTimeout(() => {
-                _ChiaApi.getFinished().then((data) => {
-                    if (this._Config.env.patch) {
-                        if (data['plot']) {
-                            this.startDownload(data['plot']['id'], this._Config.env.patch, data['plot']['token'], data['plot']['filename'], data['plot']['google_disk_id'], data['plot']['config']).then();
-                        } else {
-                            this.getNewDownload();
+        return new Promise((resolve, reject) => {
+            if (this._Config.env.auto) {
+                try {
+                    let count_run = 0;
+                    for (let plot_id in this.plots) {
+                        let item = this.plots[plot_id];
+                        if (item.status === 'downloading') {
+                            count_run++;
                         }
                     }
-                }).catch((e) => {
-                    setTimeout(() => {
-                        this.getNewDownload();
-                    }, 3000);
-                });
-            }, 5000);
-        }
+                    let count_need_run = this._Config.env.auto_count - count_run - this.count_starting;
+
+                    console.log(count_need_run, this._Config.env.auto_count, count_run, this.count_starting);
+
+                    if (count_need_run > 0) {
+                        this.count_starting++;
+                        _ChiaApi.getFinished().then((data) => {
+                            if (this._Config.env.dirs.length > 0) {
+                                if (data['plot']) {
+                                    this.startDownload(data['plot']['id'], this._Config.env.dirs, data['plot']['token'], data['plot']['filename'], data['plot']['google_disk_id'], data['plot']['config']).then();
+                                } else {
+                                    this.count_starting--;
+                                }
+                            }
+                            resolve();
+                        }).catch((e) => {
+                            this.count_starting--;
+                            reject();
+                        });
+                    } else {
+                        resolve();
+                    }
+                } catch (err) {
+                    _Logs.error(err);
+                    reject();
+                }
+            } else {
+                resolve();
+            }
+        });
     }
 
 }

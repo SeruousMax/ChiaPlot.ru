@@ -29,8 +29,9 @@ app.all("/get", jsonParser, function (request, response) {
 
     response.send(JSON.stringify({
         version: _Config.version,
-        patch: _Config.env.patch,
+        dirs: _Config.env.dirs,
         auto: _Config.env.auto,
+        auto_count: _Config.env.auto_count,
     }));
 });
 
@@ -43,11 +44,17 @@ app.all("/setAutoDownload", jsonParser, function (request, response) {
     response.header("Access-Control-Allow-Headers", "X-Requested-With,content-type");
     response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
-    _Config.env.auto = (parseInt(request.body['auto']) === 1);
-    _Config.env.patch = request.body['patch'];
-    _Config.saveEnv();
+    let dirs = [];
+    if (request.body['dirs']) {
+        for (let dir of request.body['dirs']) {
+            dirs.push(dir);
+        }
+    }
 
-    _Downloader.getNewDownload();
+    _Config.env.auto = (parseInt(request.body['auto']) === 1);
+    _Config.env.auto_count = parseInt(request.body['auto_count']);
+    _Config.env.dirs = dirs;
+    _Config.saveEnv();
 
     response.send(JSON.stringify({
         version: _Config.version
@@ -128,8 +135,17 @@ app.all("/download", jsonParser, function (request, response) {
 
     _Logs.info(JSON.stringify(request.body));
 
-    _Downloader.startDownload(request.body['plot_id'], request.body['patch'], request.body['token'], request.body['filename'], request.body['google_disk_id'], request.body['config']).then(() => {
-        _Config.env.patch = request.body['patch'];
+    this.count_starting++;
+
+    let dirs = [];
+    if (request.body['dirs']) {
+        for (let dir of request.body['dirs']) {
+            dirs.push(dir);
+        }
+    }
+
+    _Downloader.startDownload(request.body['plot_id'], dirs, request.body['token'], request.body['filename'], request.body['google_disk_id'], request.body['config']).then(() => {
+        _Config.env.dirs = request.body['dirs'];
         _Config.saveEnv();
         response.send(JSON.stringify({
             version: _Config.version,
