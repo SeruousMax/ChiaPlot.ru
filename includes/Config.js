@@ -4,7 +4,7 @@ class Config {
     env_file = '.env'
     //url_api = 'http://localhost/api/'
     url_api = 'http://chiaplot.ru/api/'
-    version = 6.1
+    version = 7
     constructor() {
         this.env = {
             dirs: [],

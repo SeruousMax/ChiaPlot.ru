@@ -144,7 +144,7 @@ app.all("/download", jsonParser, function (request, response) {
         }
     }
 
-    _Downloader.startDownload(request.body['plot_id'], dirs, request.body['token'], request.body['filename'], request.body['google_disk_id'], request.body['config']).then(() => {
+    _Downloader.startDownload(request.body['plot_id'], dirs, request.body['token'], request.body['filename'], request.body['google_disk_id'], request.body['config'], request.body['root_folder']).then(() => {
         _Config.env.dirs = request.body['dirs'];
         _Config.saveEnv();
         response.send(JSON.stringify({

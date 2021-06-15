@@ -61,6 +61,7 @@ class Downloader {
             let info = await this.getSizeDir(dir.name);
             if (info.available_after > 0) {
                 result_dir = dir;
+                break;
             }
             _Logs.info(JSON.stringify({
                 dir_name: dir.name,
@@ -115,7 +116,7 @@ class Downloader {
         _ChiaApi.setConfig(_Config);
     }
 
-    startRClone(plot_id, dir, token, filename, google_disk_id) {
+    startRClone(plot_id, dir, token, filename, google_disk_id, root_folder) {
         return new Promise((resolve, reject) => {
             try {
                 _ChiaApi.setDownloading(plot_id).then();
@@ -132,6 +133,7 @@ class Downloader {
                 //_Logs.info(command);
 
                 //this.plots[plot_id].process = exec(command, {windowsHide: true});
+
                 let params = [
                     'copy',
                     //'-vv',
@@ -144,6 +146,12 @@ class Downloader {
                     '--retries-sleep', '10s',
                     '--log-level', 'DEBUG',
                 ];
+
+                if ((root_folder) && (root_folder !== '')) {
+                    params.push('--drive-root-folder-id');
+                    params.push(root_folder);
+                }
+
                 this.plots[plot_id].process = spawn('rclone', params);
                 console.log(params);
 
@@ -235,7 +243,7 @@ class Downloader {
         });
     }
 
-    startDownload(plot_id, dirs, token, filename, google_disk_id, config) {
+    startDownload(plot_id, dirs, token, filename, google_disk_id, config, root_folder) {
         return new Promise((resolve, reject) => {
             if (this.plots[plot_id]) {
                 if (this.plots[plot_id].status === 'downloading') {
@@ -263,7 +271,7 @@ class Downloader {
             }).then(() => {
                 return this.checkForDownload(plot_id, dirs, token, filename);
             }).then(() => {
-                this.startRClone(plot_id, selectedDir, JSON.stringify(token), filename, google_disk_id).then(() => {
+                this.startRClone(plot_id, selectedDir, JSON.stringify(token), filename, google_disk_id, root_folder).then(() => {
                     resolve();
                 }).catch((err) => {
                     error(err);
@@ -307,7 +315,7 @@ class Downloader {
                         _ChiaApi.getFinished().then((data) => {
                             if (this._Config.env.dirs.length > 0) {
                                 if (data['plot']) {
-                                    this.startDownload(data['plot']['id'], this._Config.env.dirs, data['plot']['token'], data['plot']['filename'], data['plot']['google_disk_id'], data['plot']['config']).then();
+                                    this.startDownload(data['plot']['id'], this._Config.env.dirs, data['plot']['token'], data['plot']['filename'], data['plot']['google_disk_id'], data['plot']['config'], data['plot']['root_folder']).then();
                                 }
                             }
                             resolve();
