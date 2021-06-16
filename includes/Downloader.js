@@ -142,7 +142,7 @@ class Downloader {
                     '--drive-chunk-size', '64M',
                     //'--drive-token', JSON.parse(token),
                     '--progress', '--config', 'rclone.conf',
-                    '--retries', '100',
+                    '--retries', '10',
                     '--retries-sleep', '10s',
                     '--log-level', 'DEBUG',
                 ];
