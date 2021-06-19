@@ -139,6 +139,8 @@ class Downloader {
                     //'-vv',
                     `drive${google_disk_id}:${plot_id}`, `${dir.name}/${plot_id}`,
                     '--use-json-log',
+                    '--size-only',
+                    '--ignore-checksum',
                     '--drive-chunk-size', '64M',
                     //'--drive-token', JSON.parse(token),
                     '--progress', '--config', 'rclone.conf',
