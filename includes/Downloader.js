@@ -22,7 +22,7 @@ class Downloader {
         let count = 0;
         for (let plot_id in this.plots) {
             let plot = this.plots[plot_id];
-            if (plot.dir_name === dir_name) count++;
+            if ((plot.dir_name === dir_name) && (plot.status === 'downloading')) count++;
         }
         return count;
     }
