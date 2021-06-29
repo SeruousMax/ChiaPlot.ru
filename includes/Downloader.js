@@ -32,12 +32,22 @@ class Downloader {
             diskusage(dir_name, (err, usage) => {
                 try {
                     if (err) {
-                        _Logs.error(err);
-                        reject(err);
+                        if (fs.existsSync(dir_name)) {
+                            let info = {
+                                available: 0,
+                                available_after: 1,
+                                total: 0,
+                                used: 0
+                            };
+                            resolve(info);
+                        } else {
+                            _Logs.error(err);
+                            reject(err);
+                        }
                     } else {
                         let info = {
                             available: usage.available,
-                            available_after: usage.available - (108820103168 + 1088201031)  * (this.getDownloadingCount(dir_name) + 1), //101 Gb + 1%
+                            available_after: usage.available - (108820103168 + 1088201031) * (this.getDownloadingCount(dir_name) + 1), //101 Gb + 1%
                             total: usage.total,
                             used: usage.used
                         };
@@ -300,15 +310,20 @@ class Downloader {
 
     getNewDownload() {
         return new Promise((resolve, reject) => {
+            let count_run = 0;
+            let downloading_plots = [];
+            for (let plot_id in this.plots) {
+                let item = this.plots[plot_id];
+                if (item.status === 'downloading') {
+                    count_run++;
+                    downloading_plots.push(plot_id);
+                }
+            }
+
+            _ChiaApi.pingDownloading(downloading_plots).then().catch();
+
             if (this._Config.env.auto) {
                 try {
-                    let count_run = 0;
-                    for (let plot_id in this.plots) {
-                        let item = this.plots[plot_id];
-                        if (item.status === 'downloading') {
-                            count_run++;
-                        }
-                    }
                     let count_need_run = this._Config.env.auto_count - count_run;
 
                     console.log(count_need_run, this._Config.env.auto_count, count_run);

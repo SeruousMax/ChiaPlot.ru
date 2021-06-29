@@ -3,7 +3,6 @@ let bodyParser = require("body-parser");
 let _Config = require('./includes/Config');
 let _Downloader = require('./includes/Downloader');
 let _Logs = require('./includes/Logs');
-let kill = require('tree-kill');
 
 let app = express();
 let jsonParser = bodyParser.json();
@@ -105,7 +104,7 @@ app.all("/getList", jsonParser, function (request, response) {
             if (progress)
                 if (progress.length > 0) progress = progress[progress.length -1].match(/([0-9].*)\/(.*)\,(.*),(.*),(.*)/i);
         }
-        items.push({
+        items.unshift({
             id: item.id,
             dir: item.dir_name,
             filename: item.filename,
@@ -134,8 +133,6 @@ app.all("/download", jsonParser, function (request, response) {
     response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
     _Logs.info(JSON.stringify(request.body));
-
-    this.count_starting++;
 
     let dirs = [];
     if (request.body['dirs']) {

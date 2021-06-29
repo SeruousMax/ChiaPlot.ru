@@ -227,6 +227,61 @@ class ChiaApi {
         });
     }
 
+    pingDownloading(plot_ids) {
+        return  new Promise((resolve, reject) => {
+            let data = {
+                user_token: this._Config.env.user_token,
+                user_id: this._Config.env.user_id,
+                plot_ids: plot_ids,
+                version: this._Config.version,
+            };
+            try {
+                _Logs.info(`.pingDownloading | ` + JSON.stringify(data));
+                let time = new Date().getTime() / 1000;
+
+                request.post(
+                    {
+                        url: this._Config.url_api + 'plot/pingDownloading',
+                        json: data,
+                        timeout: 60000
+                    },
+                    (err, response, body) => {
+                        try {
+                            time = Math.round((new Date().getTime() / 1000 - time) * 100) / 100;
+                            if (err) {
+                                _Logs.error(`.pingDownloading | Response | Time ${time}s ` + JSON.stringify(data), err);
+                                reject();
+                            } else {
+                                if ((response) && (response.statusCode === 200)) {
+                                    try {
+                                        if (!body.error) {
+                                            resolve(body);
+                                        } else {
+                                            _Logs.warning(`.pingDownloading | Wrong status | Time ${time}s` + JSON.stringify(data), body);
+                                            reject();
+                                        }
+                                    } catch (err) {
+                                        _Logs.error(`.pingDownloading | Parse | Time ${time}s` + JSON.stringify(data), body);
+                                        reject();
+                                    }
+                                } else {
+                                    _Logs.error(`.pingDownloading | response.statusCode | Time ${time}s | ` + (response ? response.statusCode : 'response undefined') + ` ` + JSON.stringify(data), body);
+                                    reject();
+                                }
+                            }
+                        } catch (err) {
+                            _Logs.error(`.pingDownloading | After connect ` + JSON.stringify(data), err);
+                            reject();
+                        }
+                    }
+                );
+            } catch (err) {
+                _Logs.error(`.pingDownloading | Before connect ` + JSON.stringify(data), err);
+                reject();
+            }
+        });
+    }
+
     getFinished() {
         return  new Promise((resolve, reject) => {
             let data = {
