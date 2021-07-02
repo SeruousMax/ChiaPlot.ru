@@ -319,7 +319,7 @@ class Downloader {
             }
 
             if (count_run > 0)
-                _ChiaApi.pingDownloading(downloading_plots).then().catch();
+                _ChiaApi.pingDownloading(downloading_plots).then(() => {}).catch(() => {});
 
             if (this._Config.env.auto) {
                 try {
