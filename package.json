@@ -25,6 +25,7 @@
     "diskusage-ng": "^1.0.1",
     "express": "^4.17.1",
     "node-cmd": "^4.0.0",
+    "node-file-logger": "^0.9.5",
     "request": "^2.88.2",
     "tree-kill": "^1.2.2"
   }

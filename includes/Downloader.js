@@ -165,7 +165,7 @@ class Downloader {
                 }
 
                 this.plots[plot_id].process = spawn('rclone', params);
-                console.log(params);
+                _Logs.info(params);
 
 
                 this.plots[plot_id].process.on('error', (error) => {
@@ -185,8 +185,6 @@ class Downloader {
                     this.plots[plot_id].log += data;
 
                     this.plots[plot_id].log = this.plots[plot_id].log.substr(-2000);
-
-                    //console.log('.startRClone stdout data', this.plots[plot_id].log);
                 });
                 this.plots[plot_id].process.stdout.on('end', (data) => {
                     if (data) {
@@ -209,7 +207,7 @@ class Downloader {
                 this.plots[plot_id].process.stderr.on('end', (data) => {
                     this.plots[plot_id].process.kill();
                     _ChiaApi.unSetDownloading(plot_id).then();
-                    console.log('.startRClone stderr data', this.plots[plot_id].log);
+                    _Logs.error('.startRClone stderr data', this.plots[plot_id].log);
                     if (!this.plots[plot_id].log.match(/Transferred:(.*)1 \/ 1,/gi))
                         this.errorRClone(plot_id, this.plots[plot_id].log);
                 });
@@ -320,13 +318,12 @@ class Downloader {
                 }
             }
 
-            _ChiaApi.pingDownloading(downloading_plots).then().catch();
+            if (count_run > 0)
+                _ChiaApi.pingDownloading(downloading_plots).then().catch();
 
             if (this._Config.env.auto) {
                 try {
                     let count_need_run = this._Config.env.auto_count - count_run;
-
-                    console.log(count_need_run, this._Config.env.auto_count, count_run);
 
                     if (count_need_run > 0) {
                         _ChiaApi.getFinished().then((data) => {
