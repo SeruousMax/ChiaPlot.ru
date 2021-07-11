@@ -171,13 +171,11 @@ class Downloader {
                 this.plots[plot_id].process.on('error', (error) => {
                     this.plots[plot_id].log += error.message;
                     this.errorRClone(plot_id, error.message);
-                    this.plots[plot_id].log += error.message;
                     _Logs.error('.startRClone error', error);
                 });
                 this.plots[plot_id].process.on('uncaughtException', (error) => {
                     this.plots[plot_id].log += error.message;
                     this.errorRClone(plot_id, error.message);
-                    this.plots[plot_id].log += error.message;
                     _Logs.error('.startRClone Exception', error);
                 });
 
