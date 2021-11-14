@@ -3,6 +3,8 @@ let bodyParser = require("body-parser");
 let _Config = require('./includes/Config');
 let _Downloader = require('./includes/Downloader');
 let _Logs = require('./includes/Logs');
+const https = require('https');
+const fs = require('fs');
 
 let app = express();
 let jsonParser = bodyParser.json();
@@ -19,8 +21,10 @@ app.all("/get", jsonParser, function (request, response) {
     if (allowedOrigins.indexOf(origin) > -1){
         response.setHeader('Access-Control-Allow-Origin', origin);
     }
-    response.header("Access-Control-Allow-Headers", "X-Requested-With,content-type");
+    response.header("Access-Control-Allow-Headers", "Origin,X-Requested-With,content-type,Accept");
     response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    response.setHeader('Access-Control-Allow-Private-Network', 'true');
+    response.setHeader('Access-Control-Request-Private-Network', 'true');
 
     _Config.env.user_id = request.body['user_id'];
     _Config.env.user_token = request.body['user_token'];
@@ -42,6 +46,8 @@ app.all("/setAutoDownload", jsonParser, function (request, response) {
     }
     response.header("Access-Control-Allow-Headers", "X-Requested-With,content-type");
     response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    response.setHeader('Access-Control-Allow-Private-Network', 'true');
+    response.setHeader('Access-Control-Request-Private-Network', 'true');
 
     let dirs = [];
     if (request.body['dirs']) {
@@ -68,6 +74,8 @@ app.all("/kill", jsonParser, function (request, response) {
     }
     response.header("Access-Control-Allow-Headers", "X-Requested-With,content-type");
     response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    response.setHeader('Access-Control-Allow-Private-Network', 'true');
+    response.setHeader('Access-Control-Request-Private-Network', 'true');
 
     let res = {
         version: _Config.version,
@@ -94,6 +102,8 @@ app.all("/getList", jsonParser, function (request, response) {
     }
     response.header("Access-Control-Allow-Headers", "X-Requested-With,content-type");
     response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    response.setHeader('Access-Control-Allow-Private-Network', 'true');
+    response.setHeader('Access-Control-Request-Private-Network', 'true');
 
     let items = [];
     for (let plot_id in  _Downloader.plots) {
@@ -131,6 +141,8 @@ app.all("/download", jsonParser, function (request, response) {
     }
     response.header("Access-Control-Allow-Headers", "X-Requested-With,content-type");
     response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    response.setHeader('Access-Control-Allow-Private-Network', 'true');
+    response.setHeader('Access-Control-Request-Private-Network', 'true');
 
     _Logs.info(JSON.stringify(request.body));
 
@@ -156,4 +168,12 @@ app.all("/download", jsonParser, function (request, response) {
     });
 });
 
-app.listen(8096);
+//app.listen(8096);
+
+const httpsOptions = {
+    key: fs.readFileSync('./ssl/privkey.pem'),
+    cert: fs.readFileSync('./ssl/cert.pem')
+}
+const server = https.createServer(httpsOptions, app).listen(8096, () => {
+
+});
