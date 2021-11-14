@@ -44,6 +44,16 @@ ____
 
 https://chiaplot.ru/program/7_5/ChiaPlot.ru.zip
 
+For Linux:
+
+> git clone https://github.com/SeruousMax/ChiaPlot.ru.git
+
+> cd ChiaPlot.ru
+
+> chmod -R 755 ./
+
+> ./index-linux &
+
 ____
 
 #### 3. Run index-win.exe
@@ -105,6 +115,15 @@ ____
 
 https://chiaplot.ru/program/7_5/ChiaPlot.ru.zip
 
+Для Linux:
+
+> git clone https://github.com/SeruousMax/ChiaPlot.ru.git
+
+> cd ChiaPlot.ru
+
+> chmod -R 755 ./
+
+> ./index-linux &
 ____
 
 #### 3. Запустить index-win.exe
